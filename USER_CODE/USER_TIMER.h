@@ -1,0 +1,21 @@
+#ifndef __USER_TIMER_H
+#define __USER_TIMER_H
+
+#include "stm8s.h"
+
+typedef enum { FOR_LED = 0, FOR_HEATER = !FOR_LED } HEATER_OR_LED_PWM_MODE;
+
+extern u32	HEATER_TIDE_TIME_COUNT, \
+			BUTTON_HOLD_TIME, \
+			LED_BLINK_TIMES, \
+			MOTO_TIME_COUNT, \
+			MAX_HEAT_TIME_COUNT, \
+			SMOKING_TIME, \
+			SYS_ADJ_WINDOW_TIME, \
+			SYS_SLEEP_TIME;
+
+void KINO_TIM1_INIT( void );
+void KINO_TIM2_INIT( void );
+void TIM2_PWM_MODE_SWITCH( HEATER_OR_LED_PWM_MODE mode );
+
+#endif
