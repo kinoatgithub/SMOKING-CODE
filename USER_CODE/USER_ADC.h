@@ -4,8 +4,8 @@
 #include "stm8s.h"
 #include "USER_CONFIG.h"
 
-#define ADC1_BAT_VOL_CH		ADC1_CHANNEL_5
-#define ADC1_R_ADJ_VOL_CH	ADC1_CHANNEL_6
+#define ADC1_BAT_VOL_CH		ADC1_CHANNEL_6
+#define ADC1_R_ADJ_VOL_CH	ADC1_CHANNEL_5
 
 struct POWER_SHEET_TYPE
 {

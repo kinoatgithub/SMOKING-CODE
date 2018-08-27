@@ -21,7 +21,7 @@ __interrupt void ADC_CONVER_FINISH( void )
 	ADC1_ClearFlag( ADC1_FLAG_EOC );
 	POWER_SHEET.vol[ POWER_SHEET.ptr++ % KINO_ADC_DATE_VOLUME ] = y;		
 	POWER_SHEET.avg = buffer_avger();
-	if( HEATER_MODE == HEATER_PWM )
+	if( SYS_STATUS == PWM_HEATING )
 	{//功率自动调节
 		HEATER_POWER_ADJ( TARGET_POWER );
 	}
@@ -61,7 +61,7 @@ u16 buffer_avger()
 
 void KINO_ADC_INIT()
 {	
-	ADC1->CR1 &= ~ADC1_CR1_CONT;													//单次转换模式
+	ADC1->CR1 &= ~ADC1_CR1_CONT;												//单次转换模式
 	ADC1->CR1 |= ADC1_PRESSEL_FCPU_D2;											//设置ADC1时钟相对于cpu时钟的分频量
 	ADC1->CR2 |= ADC1_ALIGN_LEFT;												//输出结果左对齐
 	ADC1_SchmittTriggerConfig( ADC1_SCHMITTTRIG_CHANNEL5, DISABLE );			//关闭该通道的施密特触发器以节能
@@ -70,8 +70,9 @@ void KINO_ADC_INIT()
 }
 
 void ADC1_PRE_CONVER( u8 channel )
-{//ADC转换准备
-	ADC1->CSR |= channel;
+{//ADC转换前指定通道
+	ADC1->CSR &= (uint8_t)(~ADC1_CSR_CH);
+	ADC1->CSR |= (uint8_t)channel;
 }
 
 void BAT_POWER_COLLECT( void )

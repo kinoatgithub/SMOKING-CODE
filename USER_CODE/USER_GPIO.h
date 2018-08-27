@@ -30,23 +30,23 @@
 #define SYS_ADJ_PIN             GPIO_PIN_7              //系统调节触发端
 
 #define CHARGE_SIGNAL_PORT      GPIOD
-#define CHARGE_SIGNAL_PIN       GPIO_PIN_2              //充电信号输入端
+#define CHARGE_SIGNAL_PIN       GPIO_PIN_4              //充电信号输入端
 
 #define HEATER_PWM_PORT         GPIOD
-#define HEATER_PWM_PIN          GPIO_PIN_4              //电热片控制端
+#define HEATER_PWM_PIN          GPIO_PIN_3              //电热片控制端
 
 #define BAT_VOL_PORT            GPIOD
-#define BAT_VOL_PIN             GPIO_PIN_5              //电池电压检测端
+#define BAT_VOL_PIN             GPIO_PIN_6              //电池电压检测端
 
 #define R_ADJ_VOL_PORT          GPIOD
-#define R_ADJ_VOL_PIN           GPIO_PIN_6              //温度设置端
+#define R_ADJ_VOL_PIN           GPIO_PIN_5              //温度设置端
 
 	 
 /******************************************************************************
  *OUTPUT_CHANNEL_DEFINE
  */
-#define HEATER_CC_CHANNEL		TIM2_CHANNEL_1
-#define ADC_TRI_CC_CHANNEL		TIM2_CHANNEL_2
+#define ADC_TRI_CC_CHANNEL		TIM2_CHANNEL_1
+#define HEATER_CC_CHANNEL		TIM2_CHANNEL_2
 #define LED_CC_CHANNEL			TIM2_CHANNEL_3
 
 extern FunctionalState BUTTON_ACTIVE_FLAG;

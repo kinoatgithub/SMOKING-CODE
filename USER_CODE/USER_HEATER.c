@@ -8,14 +8,14 @@ HEATER_MODE_TYPE HEATER_MODE;
 void HEATER_PWM_DUTY_SET( float duty )
 {
 	if( duty < 1 )
-		TIM2_SetCompare1((uint16_t)( KINO_HEATER_PWM_PERIOD * duty ));
+		TIM2_SetCompare2((uint16_t)( KINO_HEATER_PWM_PERIOD * duty ));
 	else
-		TIM2_SetCompare1((uint16_t)( KINO_HEATER_PWM_PERIOD ));
+		TIM2_SetCompare2((uint16_t)( KINO_HEATER_PWM_PERIOD + 1 ));
 }
 
 void HEATER_POWER_ADJ( u32 power )
 {
-	static float target_duty;
+	float target_duty;
 	target_duty = ( (float)power / POWER_SHEET.avg ) / POWER_SHEET.avg;
 	HEATER_PWM_DUTY_SET( target_duty );
 }

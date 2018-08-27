@@ -256,7 +256,7 @@
                 </option>
                 <option>
                     <name>CCIncludePath2</name>
-                    <state>C:\Users\KINO\Desktop\SMOKING_CODE\STM8S_StdPeriph_Driver\inc</state>
+                    <state>$PROJ_DIR$\STM8S_StdPeriph_Driver\inc</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1616,9 +1616,6 @@
         </file>
         <file>
             <name>$EW_DIR$\STM8S_StdPeriph_Libraries\STM8S_StdPeriph_Driver\src\stm8s_gpio.c</name>
-        </file>
-        <file>
-            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_itc.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_tim1.c</name>

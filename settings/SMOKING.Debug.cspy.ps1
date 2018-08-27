@@ -23,9 +23,9 @@ param([String]$debugfile = "");
 
 if ($debugfile -eq "")
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\KINO\Desktop\SMOKING_CODE\settings\SMOKING.Debug.general.xcl" --backend -f "C:\Users\KINO\Desktop\SMOKING_CODE\settings\SMOKING.Debug.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\KINO\Desktop\SMOKING CODE\settings\SMOKING.Debug.general.xcl" --backend -f "C:\Users\KINO\Desktop\SMOKING CODE\settings\SMOKING.Debug.driver.xcl" 
 }
 else
 {
-& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\KINO\Desktop\SMOKING_CODE\settings\SMOKING.Debug.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\KINO\Desktop\SMOKING_CODE\settings\SMOKING.Debug.driver.xcl" 
+& "C:\Program Files (x86)\IAR Systems\Embedded Workbench 8.0\common\bin\cspybat" -f "C:\Users\KINO\Desktop\SMOKING CODE\settings\SMOKING.Debug.general.xcl" --debug_file=$debugfile --backend -f "C:\Users\KINO\Desktop\SMOKING CODE\settings\SMOKING.Debug.driver.xcl" 
 }

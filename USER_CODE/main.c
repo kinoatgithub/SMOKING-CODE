@@ -84,25 +84,47 @@ void SYS_POWER_INIT()
 	}
 	while( SYS_ADJ_WINDOW_TIME )
 	{
-		ADC1->CR1 |= ADC1_CR1_ADON;												//开始采样电池电压
-		if( GPIO_ReadInputPin( SYS_ADJ_PORT, SYS_ADJ_PIN ) != RESET )
+		if( !(SYS_ADJ_PORT->IDR & SYS_ADJ_PIN ))
 		{
-			u8 step = 0;
+			BitAction step = RESET, once;
+			u16 heater_ad = 1;
 			TIM2_PWM_MODE_SWITCH( FOR_HEATER );
 			HEATER_CONTROL( HEATER_PWM );
-			HEATER_MODE = HEATER_PWM;											//借用一下该模式的PWM自动调节资源
 			LED_SHOW( RED_LIGHT, LED_ON );
+			ADC1->CR1 |= ADC1_CR1_ADON;											//预启动
 			while( 1 )
 			{
-				TARGET_POWER = ( KINO_ADJ_BASE_POWER + POWER_SHEET.avg );
-				if( GPIO_ReadInputPin( BUTTON_PORT, BUTTON_PIN ) != RESET )
+				if( ( POWER_SHEET.ptr % KINO_ADC_DATE_VOLUME ) == 0 )
+				{//模拟量采集周期完成
+					if( once == RESET )
+					{
+						if( ( POWER_SHEET.ptr % ( 2 * KINO_ADC_DATE_VOLUME ) ) == 0 )
+						{//转换结果定义为可调电阻ad
+							TARGET_POWER = (((u32)POWER_SHEET.avg * KINO_ADJ_FACTOR ) + KINO_ADJ_BASE_POWER );
+							HEATER_PWM_DUTY_SET( ( (float)TARGET_POWER / heater_ad ) / heater_ad );
+							ADC1_PRE_CONVER( ADC1_BAT_VOL_CH );						//下个周期采集电热片ad
+						}
+						else
+						{//转换结果定义为电热片ad
+							heater_ad = POWER_SHEET.avg;
+							ADC1_PRE_CONVER( ADC1_R_ADJ_VOL_CH );					//下个周期采集可调电阻ad
+						}
+						once = SET;
+					}
+				}
+				else
 				{
+					once = RESET;
+				}
+				if( !( BUTTON_PORT->IDR & BUTTON_PIN ) )
+				{
+					while( !(BUTTON_PORT->IDR & BUTTON_PIN) );
 					FLASH_Unlock( FLASH_MEMTYPE_DATA );
 					if( step == 0 )
 					{
 						FLASH_ProgramWord( KINO_HEAT_LPOWER_ADD, TARGET_POWER );
 						LED_SHOW( BLU_LIGHT, LED_ON );
-						step = 1;
+						step = SET;
 					}
 					else
 					{
@@ -114,7 +136,7 @@ void SYS_POWER_INIT()
 						else
 						{
 							LED_SHOW( RED_LIGHT, LED_ON );
-							step = 0;
+							step = RESET;
 						}
 					}
 					FLASH_Lock( FLASH_MEMTYPE_DATA );
@@ -134,23 +156,24 @@ int main( void )
 	while( 1 )
 	{
 		static u32 temp;
-		if( GPIO_ReadInputPin( BUTTON_PORT, BUTTON_PIN ) != RESET )
+		if( !( BUTTON_PORT->IDR & BUTTON_PIN ) )
 		{//按按钮状态
 			if( BUTTON_HOLD_TIME == 0 )
-			{//计时结束了
-				MOTO_TIME_COUNT	= KINO_MOTO_SHORT;								//震机
-				SYS_STATUS = WAITING;
+			{//长按后强制停机
+				if( SYS_STATUS != WAITING )
+				{
+					MOTO_TIME_COUNT	= KINO_MOTO_SHORT;								//震机
+					SYS_STATUS = WAITING;
+				}
 			}
 		}
-		
-//		if( GPIO_ReadInputPin( CHARGE_SIGNAL_PORT, CHARGE_SIGNAL_PIN ) != RESET )		//debug@kino 取消充电判断，使充电和没充电状态没有区别
-//		{//正在充电
-//			if( SYS_STATUS != CHARGING )
-//			{
-//				SYS_STATUS = PRE_CHARGING;
-//			}
-//		}
-		
+		if( CHARGE_SIGNAL_PORT->IDR & CHARGE_SIGNAL_PIN )
+		{
+			if( SYS_STATUS != CHARGING )
+			{
+				SYS_STATUS = PRE_CHARGING;
+			}
+		}
 		switch ( SYS_STATUS )
 		{
 			case WAITING:
@@ -177,7 +200,7 @@ int main( void )
 				}
 				if( SYS_SLEEP_TIME == 0 )
 				{
-//					halt();														//debug@kino 暂时取消
+					halt();
 				}
 				break;
 			}
@@ -193,18 +216,17 @@ int main( void )
 			}
 			case CHARGING:
 			{//充电中
-				ADC1->CR1 |= ADC1_CR1_ADON;										//触发采样电池电压
-				if( GPIO_ReadInputPin( CHARGE_SIGNAL_PORT, CHARGE_SIGNAL_PIN ) != RESET )
-				{
+				while( CHARGE_SIGNAL_PORT->IDR & CHARGE_SIGNAL_PIN )
+				{//正在连接电源状态
+					HEATER_CONTROL( HEATER_OFF );
 					if( BAT_POWER_LEVEL == FULL_POWER )
 						LED_SHOW( GRE_LIGHT, LED_ON );
 					else
 						LED_SHOW( GRE_LIGHT, LED_BREATH );
+					ADC1->CR1 |= ADC1_CR1_ADON;									//触发采样电池电压
 				}
-				else
-				{
-					SYS_STATUS = WAITING;
-				}
+				BUTTON_ACTIVE_FLAG = DISABLE;									//取消充電期間的觸發狀態
+				SYS_STATUS = WAITING;
 				break;
 			}
 			case PRE_MAX_HEAT:
@@ -230,13 +252,17 @@ int main( void )
 				if( MAX_HEAT_TIME_COUNT == 0 )
 				{//满功率预热时间到，准备跳转到PWM模式
 					MOTO_TIME_COUNT = KINO_MOTO_SHORT;
-					ADC1_PRE_CONVER( ADC1_BAT_VOL_CH );								//指定需要用到ADC的通道
+					ADC1_PRE_CONVER( ADC1_BAT_VOL_CH );							//指定需要用到ADC的通道
 					TIM2_PWM_MODE_SWITCH( FOR_HEATER );
 					HEATER_CONTROL( HEATER_PWM );
 					TARGET_POWER = POWER_LEVEL_COUNTDOWN();						//设置目标功率
 					if( ( * ( u8 * ) KINO_TOBACCO_DOWNCOUNT_ADD ) != 0 )		//高温计数情况
 					{
 						LED_SHOW( ALL_LIGHT, LED_ON );
+					}
+					else
+					{
+						LED_SHOW( BLU_LIGHT, LED_ON );
 					}
 					SMOKING_TIME = KINO_USER_SMOKE_TIME;						//用户吸烟可用时间
 					GET_SUCK_COUNT( RESET );									//重置吸烟口数
@@ -252,11 +278,13 @@ int main( void )
 					FLASH_Unlock( FLASH_MEMTYPE_DATA );
 					if( ( * ( u32 * ) KINO_TOBACCO_DOWNCOUNT_ADD ) != 0 )
 					{
-						FLASH_ProgramByte( KINO_TOBACCO_DOWNCOUNT_ADD, KINO_TOBACCO_MAX_COUNT );
+						FLASH_ProgramByte( KINO_TOBACCO_DOWNCOUNT_ADD, 0 );
+						LED_SHOW( BLU_LIGHT, LED_ON );
 					}
 					else
 					{
-						FLASH_ProgramByte( KINO_TOBACCO_DOWNCOUNT_ADD, 0 );
+						FLASH_ProgramByte( KINO_TOBACCO_DOWNCOUNT_ADD, KINO_TOBACCO_MAX_COUNT );
+						LED_SHOW( ALL_LIGHT, LED_ON );
 					}
 					FLASH_Lock( FLASH_MEMTYPE_DATA );
 					TARGET_POWER = POWER_LEVEL_COUNTDOWN();						//更新目标功率
@@ -282,6 +310,7 @@ int main( void )
 				}
 				MOTO_TIME_COUNT = KINO_MOTO_LONG;								//马达起振
 				LED_SHOW( NON_LIGHT, LED_OFF );
+				SYS_SLEEP_TIME = KINO_TIME_TO_SLEEP;
 				SYS_STATUS = WAITING;
 				break;
 			}
