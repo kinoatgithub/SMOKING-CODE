@@ -16,7 +16,7 @@
         <ShowSource>1</ShowSource>
     </Trace1>
     <DebugChecksum>
-        <Checksum>6938204</Checksum>
+        <Checksum>2286945319</Checksum>
     </DebugChecksum>
     <CodeCoverage>
         <Enabled>_ 0</Enabled>
@@ -95,6 +95,12 @@
         <GraphEnabled>0</GraphEnabled>
         <ShowTimeLog>1</ShowTimeLog>
     </DataSample>
+    <Breakpoints>
+        <Bp0>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.0.1" 0 0 0 0 "" 0 ""</Bp0>
+        <Bp1>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.324.3" 0 0 0 0 "" 0 ""</Bp1>
+        <Bp2>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.288.5" 1 0 0 0 "" 0 ""</Bp2>
+        <Count>3</Count>
+    </Breakpoints>
     <LogFile>
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
@@ -104,14 +110,6 @@
         <LoggingEnabled>_ 0</LoggingEnabled>
         <LogFile>_ ""</LogFile>
     </TermIOLog>
-    <Breakpoints>
-        <Bp0>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.344.1" 0 0 0 0 "" 0 ""</Bp0>
-        <Bp1>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.138.8" 1 0 0 0 "" 0 ""</Bp1>
-        <Bp2>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.341.3" 0 0 0 0 "" 0 ""</Bp2>
-        <Bp3>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.203.6" 1 0 0 0 "" 0 ""</Bp3>
-        <Bp4>_ "STD_CODE" "{$PROJ_DIR$\USER_CODE\main.c}.339.3" 1 0 0 0 "" 0 ""</Bp4>
-        <Count>5</Count>
-    </Breakpoints>
     <Aliases>
         <A0>_ "C:\Users\KINO\Desktop\SMOKING_CODE\USER_CODE\main.c" "C:\Users\KINO\Desktop\SMOKING CODE\USER_CODE\main.c"</A0>
         <Count>1</Count>

@@ -479,7 +479,7 @@
                 <option>
                     <name>OOCOutputFormat</name>
                     <version>2</version>
-                    <state>1</state>
+                    <state>0</state>
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
@@ -487,7 +487,7 @@
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>SMOKING.hex</state>
+                    <state>SMOKING.s19</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>
@@ -1616,6 +1616,9 @@
         </file>
         <file>
             <name>$EW_DIR$\STM8S_StdPeriph_Libraries\STM8S_StdPeriph_Driver\src\stm8s_gpio.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_itc.c</name>
         </file>
         <file>
             <name>$PROJ_DIR$\STM8S_StdPeriph_Driver\src\stm8s_tim1.c</name>

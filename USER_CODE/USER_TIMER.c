@@ -43,6 +43,10 @@ __interrupt void TIM1_OVF_IRQ( void )
 			GPIO_WriteHigh( MOTO_PORT, MOTO_PIN );
 		}
 	}
+	else
+	{
+		
+	}
 	if( MAX_HEAT_TIME_COUNT != 0 )
 	{
 		MAX_HEAT_TIME_COUNT--;
@@ -141,6 +145,8 @@ void KINO_TIM2_INIT( void )
 				);
 	TIM2_ITConfig( TIM2_IT_CC2, DISABLE );										//没想到加热通道PWM捕获中断有什么用
 	TIM2_SetCompare1( (uint16_t)KINO_ADC_DELAY );								//设置ADC采样时机
+	ITC->ISPR5 &= ~0x03;
+	ITC->ISPR5 |= 0x01;															//设置tim2的优先级为1
 	TIM2_Cmd( ENABLE );
 }
 

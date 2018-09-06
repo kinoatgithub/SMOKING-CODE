@@ -2,22 +2,57 @@
 #include "USER_ADC.h"
 #include "USER_FLASH.h"
 #include "USER_GPIO.h"
+#include "USER_TIMER.h"
 
 HEATER_MODE_TYPE HEATER_MODE;
 
-void HEATER_PWM_DUTY_SET( float duty )
+u32 overshooter_change( u32 data )
 {
-	if( duty < 1 )
-		TIM2_SetCompare2((uint16_t)( KINO_HEATER_PWM_PERIOD * duty ));
+	static u16 times;
+	static u32 min = U32_MAX, max = 0;
+	if( times++ < 3 )
+		return data;
+	if( times <= KINO_ADJ_CD )
+	{
+		times++;
+	}
 	else
-		TIM2_SetCompare2((uint16_t)( KINO_HEATER_PWM_PERIOD + 1 ));
+	{
+//		times = KINO_ADJ_CD;
+		min = U32_MAX;
+		max = 0;
+	}
+	if( data < min )
+	{
+		min = data;
+		max = min + 1;
+		data += KINO_HEATER_PWM_PERIOD / ( times - 2 );
+		times = 0;
+	}
+	else if( max < data )
+	{
+		max = data;
+		min = max - 1;
+		data -= KINO_HEATER_PWM_PERIOD / ( times - 2 );
+		times = 0;
+	}
+	return data;
 }
 
-void HEATER_POWER_ADJ( u32 power )
+void HEATER_POWER_ADJ( u32 power, float vol_ad )
 {
-	float target_duty;
-	target_duty = ( (float)power / POWER_SHEET.avg ) / POWER_SHEET.avg;
-	HEATER_PWM_DUTY_SET( target_duty );
+	u16 target_count;
+	target_count = ( u16 )( ( ( (float)power / vol_ad ) / vol_ad ) * KINO_HEATER_PWM_PERIOD );
+	target_count = overshooter_change( target_count );
+	if( KINO_HEATER_PWM_PERIOD < target_count )
+	{
+		target_count = KINO_HEATER_PWM_PERIOD;
+	}
+	if( target_count < KINO_ADC_DELAY + KINO_ADC_WORKTIME )
+	{//预留给ad采样的时间
+		target_count = KINO_ADC_DELAY + KINO_ADC_WORKTIME;
+	}
+	TIM2_SetCompare2( target_count );
 }
 
 u32 POWER_LEVEL_COUNTDOWN( void )												//根据吸烟倒计次数，得到相应的功率
@@ -44,20 +79,18 @@ void HEATER_CONTROL( HEATER_MODE_TYPE mode )
 	if( last_mode != mode )
 	{
 		last_mode = mode;
+		HEATER_MODE = mode;
 		switch ( mode )
 		{
 			case HEATER_OFF:
-				HEATER_MODE = HEATER_OFF;
 				GPIO_WriteLow(HEATER_PWM_PORT, HEATER_PWM_PIN);
 				TIM2_CCxCmd( HEATER_CC_CHANNEL, DISABLE );								//HEATER_PWM输出停用
 				break;
 			case HEATER_PWM:
-				HEATER_MODE = HEATER_PWM;
 				GPIO_WriteLow(HEATER_PWM_PORT, HEATER_PWM_PIN);
 				TIM2_CCxCmd( HEATER_CC_CHANNEL, ENABLE );								//HEATER_PWM输出启用
 				break;
 			case HEATER_ON:
-				HEATER_MODE = HEATER_ON;
 				GPIO_WriteHigh( HEATER_PWM_PORT, HEATER_PWM_PIN );						//
 				TIM2_CCxCmd( HEATER_CC_CHANNEL, DISABLE );								//HEATER_PWM输出停用
 				break;

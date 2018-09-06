@@ -26,9 +26,6 @@
 #define MOTO_PORT               GPIOC
 #define MOTO_PIN                GPIO_PIN_6              //振动马达控制端
 
-#define SYS_ADJ_PORT            GPIOC
-#define SYS_ADJ_PIN             GPIO_PIN_7              //系统调节触发端
-
 #define CHARGE_SIGNAL_PORT      GPIOD
 #define CHARGE_SIGNAL_PIN       GPIO_PIN_4              //充电信号输入端
 
